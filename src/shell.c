@@ -5,6 +5,7 @@ Modify Feb 16
 #define MAX_SUB_COMMANDS 5
 #define MAX_ARGS 10
 #define MAX_CHILD 5
+#define MAX_LENGTH 20
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,6 +38,7 @@ void handle_build_in_command(struct Command *command);
 void handler(int sig);
 void interupt_handler(int sig);
 int isbuildin(struct Command *command);
+int checkandSetenv(char *line, struct Command * command);
 
 pid_t pid;
 int childpid[MAX_CHILD];
@@ -65,7 +67,8 @@ int main(){
 	// Extract arguments and print them
 	struct Command *command= malloc(sizeof(struct Command));
 	//printf("%lu\n",sizeof(struct Command));
-	ReadCommand(line, command);
+	if(!checkandSetenv(line,command))
+		ReadCommand(line, command);
 	ReadRedirectsAndBackground(command);
 	    int i=0;
 		while(i<command->num_sub_commands){
@@ -186,6 +189,28 @@ void ReadRedirectsAndBackground(struct Command *command){
 	}
 }
 
+int checkandSetenv(char *fullline, struct Command * command){
+	char *line =strdup(fullline);
+	line[strlen(line)-1]='\0';
+	if(strstr(line,"=")==NULL)
+		return 0;
+	char *pch = strtok(line, " ");
+	int id=0;
+	command->num_sub_commands=1;
+	command->sub_commands[0].line=malloc(20*sizeof(char));
+	while(pch!=NULL){
+		if(strstr(pch,"=")==NULL){
+			command->sub_commands[0].argv[id]=pch;;
+			id++;
+		}else{
+			printf("%s\n", pch);
+			putenv(pch);
+			printf("success\n");
+		}
+		pch=strtok(NULL," ");
+	}
+	return 1;
+}
 void ReadCommand(char *line, struct Command *command){
 	line[strlen(line)-1]='\0';
 	char *pch = strtok(line, "|");
@@ -297,23 +322,11 @@ void handle_build_in_command(struct Command *command){
 			if(!strcmp(command->sub_commands[0].argv[0],"printf")){
 				printf("%s", command->sub_commands[0].argv[1]);
 			}
-			if(!strcmp(command->sub_commands[0].argv[0],"alias")){
-				//printf("%s", command->sub_commands[0].argv[1]);
-			}
-			if(!strcmp(command->sub_commands[0].argv[0],"umask")){
-				//printf("%s", command->sub_commands[0].argv[1]);
-			}
 			if(!strcmp(command->sub_commands[0].argv[0],"pwd")){
 				char buf[200];
     			getcwd(buf, sizeof(buf));
 				printf("%s ", buf);
 			}
-			// if(!strcmp(command->sub_commands[0].argv[0],"eval")){
-			// 	printf("%s", command->sub_commands[0].argv[1]);
-			// }
-			//if(!strcmp(command->sub_commands[0].argv[0],"eval")){
-			//	printf("%s", command->sub_commands[0].argv[1]);
-			//}
 
 }
 

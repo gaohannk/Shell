@@ -1,0 +1,14 @@
+README
+
+Author: Guan Gui, Han Gao
+Simple Shell 
+
+This is a simple shell written in C language. Created by Guan Gui, and Han Gao, as operating system course project. We satisfied the minimum requirement and finish extra requirments.
+
+Features:
+•	We implement the basic build in commands such as cd exit, quit, print, echo. Thus we can use cd to change directory. Besides, we can use ~ symbol in the directory path to represent home directory.
+•	Background operations.  Example ls –l | wc &
+•	Redirection.  Such as wc < invalid.file or wc < valid.file
+•	Directory display.
+•	Environment variables setting.
+•	Background Process Tracking.
